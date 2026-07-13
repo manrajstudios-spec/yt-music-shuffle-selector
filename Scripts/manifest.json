@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "shuffle Classifier",
+  "version": "1.0",
+
+  "description": "Classifies Shuffle",
+
+  "icons": {
+    "48":  "icons/icon.png"
+  },
+
+  "content_scripts": [{"matches": ["https://music.youtube.com/*"],
+  "js": ["browser_handel.js"]}]
+}
