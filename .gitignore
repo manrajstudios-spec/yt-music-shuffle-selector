@@ -1,2 +1,6 @@
-.json
-.csv
+source/Data/browser.json
+source/Data/dataset.json
+source/Data/song_data.pt
+source/Data/songs.json
+source/Data/last_playlist_id.txt
+.env
