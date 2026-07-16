@@ -23,9 +23,9 @@ while i < 10:
         print(song["title"])
         all_songs.append(song["title"])
 
-    user_input = input("Do Yu Like The Playlist? y/n --> ")
+    user_action = input("Do Yu Like The Playlist? y/n --> ")
 
-    if user_input == "y":
+    if user_action == "y":
         good_or_data.append({"songs":all_songs[:20],"good_bad":1})
     else:
         good_or_data.append({"songs":all_songs[:20],"good_bad":0})

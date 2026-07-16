@@ -1,8 +1,8 @@
 import json
 import math
-import webbrowser
 import torch
 import random
+import webbrowser
 from param import Param
 from ytmusicapi import YTMusic
 
@@ -173,7 +173,9 @@ class Classifier:
             param.zero_grad()
 
     def save_model(self):
-        torch.save(self,"Models/classfier_model.pt")
+        to_save = {"w1":self.w1.value,"w2":self.w2.value,"w3":self.w3.value,"b1":self.b1.value,"b2":self.b2.value,"b3":self.b3.value}
+
+        torch.save(to_save,"Models/classfier_model.pt")
 
     def predict(self, X):
         song_embeds = []
@@ -230,3 +232,40 @@ class Classifier:
                 f.write(str(created_playlist_id))
 
             return cur_playlist if cur_playlist else all_songs ,created_playlist_id if created_playlist_id else playlist_id
+
+def get_classifier():
+    try:
+        playlist_classifier = Classifier()
+
+        model_config = torch.load("Models/classfier_model.pt",weights_only=True)
+
+        playlist_classifier.w1.value = model_config["w1"]
+        playlist_classifier.w2.value = model_config["w2"]
+        playlist_classifier.w3.value = model_config["w3"]
+
+        playlist_classifier.b1.value = model_config["b1"]
+        playlist_classifier.b2.value = model_config["b2"]
+        playlist_classifier.b3.value = model_config["b3"]
+
+    except FileNotFoundError:
+        playlist_classifier = Classifier()
+        playlist_classifier.train()
+        playlist_classifier.save_model()
+
+    return playlist_classifier
+
+
+def get_shuffle():
+    playlist_classifier = get_classifier()
+
+    good_playlist, good_playlist_id = playlist_classifier.return_good_shuffle()
+
+    url = "https://music.youtube.com/playlist"f"?list={good_playlist_id}"
+
+    firefox = webbrowser.get("firefox")
+    firefox.open(url)
+
+    print(good_playlist[:20])
+
+if __name__=="__main__":
+    get_classifier()

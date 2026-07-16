@@ -1,4 +1,5 @@
 import time
+import asyncio
 import threading
 import cv2 as cv
 import mediapipe as mp
@@ -10,10 +11,11 @@ base_options = BaseOptions(model_asset_path="Models/gesture_recognizer.task")
 options = GestureRecognizerOptions(base_options=base_options,num_hands=1,min_tracking_confidence=0.4,min_hand_detection_confidence=0.4,running_mode=RunningMode.VIDEO)
 gesture_recognizer = GestureRecognizer.create_from_options(options=options)
 
-user_input = ""
+user_action = ""
+user_action_event = threading.Event()
 
 def record_gesture():
-    global user_input
+    global user_action
 
     cap = cv.VideoCapture(0)
 
@@ -24,16 +26,16 @@ def record_gesture():
     cap.set(cv.CAP_PROP_CONTRAST, 60)
 
     while True:
-        if user_input:
+        if user_action:
+            time.sleep(0.01)
             continue
 
         ret, frame = cap.read()
 
-
         if not ret:
             break
 
-        timestamp_ms = int(cap.get(cv.CAP_PROP_POS_MSEC))
+        timestamp_ms = int(time.monotonic() * 1000)
 
         frame = cv.flip(frame, 1)
         frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
@@ -51,10 +53,11 @@ def record_gesture():
                 confidence = top_gesture.score
 
                 if gesture_name == "Open_Palm" and confidence > 0.5:
-                    user_input = "play_pause"
+                    user_action = "play_pause"
+                    user_action_event.set()
 
 def record_keyboard():
-    global user_input
+    global user_action
 
     keyboard = None
 
@@ -70,24 +73,39 @@ def record_keyboard():
     double_press_window = 0.35
 
     while True:
-        if user_input:
+        if user_action:
+            time.sleep(0.01)
             continue
 
-        if single_press and time.time() - start_time > double_press_window:
+        if single_press and time.monotonic() - start_time > double_press_window:
             single_press = False
-            user_input = "next"
+            user_action = "next"
+            user_action_event.set()
 
         event = keyboard.read_one()
 
         if event:
             if event.type == ecodes.EV_KEY and event.code == ecodes.KEY_F14 and event.value == 1:
-                if single_press and time.time() - start_time < double_press_window:
+                if single_press and time.monotonic() - start_time < double_press_window:
                     single_press = False
-                    user_input = "prev"
+                    user_action = "prev"
+                    user_action_event.set()
                 elif not single_press:
                     single_press = True
                     start_time = time.monotonic()
 
+
+def set_user_input_null():
+    global user_action
+    user_action = ""
+
+def start_recording():
+    global user_action
+    gesture_thread = threading.Thread(target=record_gesture,daemon=True)
+    keyboard_thread = threading.Thread(target=record_keyboard,daemon=True)
+
+    gesture_thread.start()
+    keyboard_thread.start()
 
 if __name__ == "__main__":
     gesture_thread = threading.Thread(target=record_gesture,daemon=True)
@@ -100,11 +118,11 @@ if __name__ == "__main__":
     start_time = 0.0
 
     while True:
-        if user_input and not window_started:
+        if user_action and not window_started:
             start_time = time.monotonic()
             window_started = True
-            print(user_input)
+            print(user_action)
 
-        if time.time() - start_time > 2 and user_input and window_started:
-            user_input = ""
+        if time.monotonic() - start_time > 2 and user_action and window_started:
+            user_action = ""
             window_started = False

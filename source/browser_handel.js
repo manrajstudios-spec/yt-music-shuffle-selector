@@ -1,12 +1,12 @@
 async function get_command(){
     while (true){
         try {
-            const response = await fetch("http://127.0.0.1:8000/")
+            const response = await fetch("http://127.0.0.1:8000/action")
             const json = await response.json()
 
             const value = json.message
 
-            if (value === "pause_play"){
+            if (value === "play_pause"){
                 pause_play();
             }
             else if (value === "next"){
@@ -15,6 +15,8 @@ async function get_command(){
             else if(value === "prev"){
                 prev();
             }
+
+            const reply = await fetch("http://127.0.0.1:8000/action_done")
         }
         catch(error){
             console.error(error)
