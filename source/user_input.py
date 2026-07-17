@@ -1,5 +1,4 @@
 import time
-import asyncio
 import threading
 import cv2 as cv
 import mediapipe as mp
@@ -22,14 +21,10 @@ def record_gesture():
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 640)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
     cap.set(cv.CAP_PROP_FPS, 30)
-    cap.set(cv.CAP_PROP_BRIGHTNESS, 110)
-    cap.set(cv.CAP_PROP_CONTRAST, 60)
+    cap.set(cv.CAP_PROP_BRIGHTNESS, 100)
+    cap.set(cv.CAP_PROP_CONTRAST, 20)
 
     while True:
-        if user_action:
-            time.sleep(0.01)
-            continue
-
         ret, frame = cap.read()
 
         if not ret:
@@ -38,23 +33,35 @@ def record_gesture():
         timestamp_ms = int(time.monotonic() * 1000)
 
         frame = cv.flip(frame, 1)
-        frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
 
-        mp_image = mp.Image(data=frame, image_format=mp.ImageFormat.SRGB)
+        if user_action:
+            time.sleep(0.01)
+            continue
 
-        result = gesture_recognizer.recognize_for_video(mp_image, timestamp_ms)
+        rgb_frame = cv.cvtColor(frame,cv.COLOR_BGR2RGB)
+
+        mp_image = mp.Image(data=rgb_frame,image_format=mp.ImageFormat.SRGB)
+
+        result = gesture_recognizer.recognize_for_video(mp_image,timestamp_ms)
+
+        display_text = "Gesture: None"
 
         if result.gestures:
             hand_gestures = result.gestures[0]
 
             if hand_gestures:
                 top_gesture = hand_gestures[0]
+
                 gesture_name = top_gesture.category_name
                 confidence = top_gesture.score
+
+                display_text = f"Gesture: {gesture_name} | "f"Confidence: {confidence:.2f}"
 
                 if gesture_name == "Open_Palm" and confidence > 0.5:
                     user_action = "play_pause"
                     user_action_event.set()
+
+        cv.putText(frame,display_text,(20, 40),cv.FONT_HERSHEY_SIMPLEX,0.7,(0, 255, 0),2,cv.LINE_AA)
 
 def record_keyboard():
     global user_action
@@ -70,11 +77,11 @@ def record_keyboard():
 
     single_press = False
     start_time = 0.0
-    double_press_window = 0.35
+    double_press_window = 0.37
 
     while True:
         if user_action:
-            time.sleep(0.01)
+            time.sleep(0.02)
             continue
 
         if single_press and time.monotonic() - start_time > double_press_window:
@@ -83,6 +90,9 @@ def record_keyboard():
             user_action_event.set()
 
         event = keyboard.read_one()
+        if not event:
+            time.sleep(0.02)
+            continue
 
         if event:
             if event.type == ecodes.EV_KEY and event.code == ecodes.KEY_F14 and event.value == 1:

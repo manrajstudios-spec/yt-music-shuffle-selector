@@ -32,7 +32,7 @@ class Classifier:
 
         self.probs = None
 
-        self.song_data = torch.load("Data/song_data.pt")
+        self.song_data = torch.load("Data/song_data.pt",weights_only=False)
 
     def get_data(self):
         try:
@@ -47,9 +47,15 @@ class Classifier:
             bad_embeds = []
 
             for g, b in zip(good["songs"], bad["songs"]):
-                g_id = self.song_data["names"].index(g)
-                b_id = self.song_data["names"].index(b)
+                try:
+                    g_id = self.song_data["names"].index(g)
+                except ValueError:
+                    print(g)
 
+                try:
+                    b_id = self.song_data["names"].index(b)
+                except ValueError:
+                    print(b)
                 good_embeds.append(self.song_data["embeddings"][g_id])
                 bad_embeds.append(self.song_data["embeddings"][b_id])
 
@@ -192,21 +198,8 @@ class Classifier:
 
         return prediction
 
-    def return_good_shuffle(self,max_tries=100):
-        yt_music = YTMusic("Data/browser.json")
-        playlist_id = "PLmVrfZmSPBK1kYEWdgbB9dlB1L7AB8hbB"
-
-        try:
-            with open("Data/last_playlist_id.txt","r") as f:
-                last_id = f.read()
-        except:
-            last_id = ""
-
-        if last_id:
-            yt_music.delete_playlist(playlistId=last_id)
-
-        songs = yt_music.get_watch_playlist(playlistId=playlist_id, limit=200, shuffle=True)
-        all_songs = [s["title"] for s in songs["tracks"]]
+    def return_good_shuffle(self,all_songs,max_tries=10000):
+        all_songs = all_songs.copy()
 
         for i in range (max_tries):
             random.shuffle(all_songs)
@@ -226,14 +219,10 @@ class Classifier:
 
                 video_ids.append(self.song_data["video_ids"][s_id])
 
-            created_playlist_id = yt_music.create_playlist(privacy_status="UNLISTED",video_ids=video_ids,title="temp",description="auto generated")
+            return video_ids,all_songs
 
-            with open("Data/last_playlist_id.txt","w") as f:
-                f.write(str(created_playlist_id))
 
-            return cur_playlist if cur_playlist else all_songs ,created_playlist_id if created_playlist_id else playlist_id
-
-def get_classifier():
+if __name__=="__main__":
     try:
         playlist_classifier = Classifier()
 
@@ -252,20 +241,3 @@ def get_classifier():
         playlist_classifier.train()
         playlist_classifier.save_model()
 
-    return playlist_classifier
-
-
-def get_shuffle():
-    playlist_classifier = get_classifier()
-
-    good_playlist, good_playlist_id = playlist_classifier.return_good_shuffle()
-
-    url = "https://music.youtube.com/playlist"f"?list={good_playlist_id}"
-
-    firefox = webbrowser.get("firefox")
-    firefox.open(url)
-
-    print(good_playlist[:20])
-
-if __name__=="__main__":
-    get_classifier()

@@ -16,7 +16,9 @@ async function get_command(){
                 prev();
             }
 
-            const reply = await fetch("http://127.0.0.1:8000/action_done")
+            await new Promise(resolve => setTimeout(resolve,2000))
+
+            await fetch("http://127.0.0.1:8000/action_done")
         }
         catch(error){
             console.error(error)
@@ -27,16 +29,45 @@ async function get_command(){
 
 get_command();
 
-function pause_play(){
-    const button = document.querySelector("[aria-label='Play'], [aria-label='Pause']")
+function pause_play() {
+    const main_btn = document.querySelector('ytmusic-play-button-renderer[aria-label="Play temp"]');
 
-    if (button){
-        button.click()
+    if (main_btn){
+        main_btn_state = main_btn.getAttribute("state");
+
+        console.log(main_btn_state);
+
+        if (main_btn_state === "default"){
+            console.log("state default")
+            main_btn.click();
+        }
+        else{
+            const player_btn = document.getElementById("play-pause-button");
+
+            if (player_btn){
+                console.log("btn found")
+                player_btn.click();
+            }
+            else{
+                console.log("btn not found")
+            }
+        }
+    }
+    else{
+        console.log("main_btn null")
+        const player_btn = document.getElementById("play-pause-button");
+         if (player_btn){
+             console.log("btn found")
+             player_btn.click();
+         }
+         else{
+             console.log("btn not found")
+         }
     }
 }
 
 function next(){
-    const next_btn = document.querySelector("[aria-label='Next']")
+    const next_btn = document.querySelector("ytmusic-player-bar [aria-label='Next']")
 
     if (next_btn){
         next_btn.click()
@@ -44,7 +75,7 @@ function next(){
 }
 
 function prev(){
-    const previous_btn = document.querySelector("[aria-label='Previous']")
+    const previous_btn = document.querySelector("ytmusic-player-bar [aria-label='Previous']")
 
     if (previous_btn){
         previous_btn.click()
