@@ -1,17 +1,23 @@
 import torch
+import json
 from ytmusicapi import YTMusic
 from sentence_transformers import SentenceTransformer
 
+# print(torch.load("Data/song_data.pt",weights_only=False).keys())
+
+
 yt_music = YTMusic("Data/browser.json")
 source_playlist_id = "PLmVrfZmSPBK1kYEWdgbB9dlB1L7AB8hbB"
+
 
 
 playlist_data = yt_music.get_watch_playlist(playlistId=source_playlist_id, limit=200, shuffle=False)
 
 all_songs = [song["title"] for song in playlist_data["tracks"]]
 
-for song in all_songs:
-    print(song)
+with open("Data/songs.json","w") as file:
+    json.dump(all_songs,file,indent=4)
+
 
 video_ids = [song["videoId"] for song in playlist_data["tracks"]]
 

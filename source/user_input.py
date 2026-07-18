@@ -2,13 +2,14 @@ import time
 import threading
 import cv2 as cv
 import mediapipe as mp
+from contextlib import redirect_stderr
 from mediapipe.tasks.python import BaseOptions
 from evdev import InputDevice, ecodes,list_devices
 from mediapipe.tasks.python.vision import GestureRecognizer,GestureRecognizerOptions,RunningMode
 
 base_options = BaseOptions(model_asset_path="Models/gesture_recognizer.task")
 options = GestureRecognizerOptions(base_options=base_options,num_hands=1,min_tracking_confidence=0.4,min_hand_detection_confidence=0.4,running_mode=RunningMode.VIDEO)
-gesture_recognizer = GestureRecognizer.create_from_options(options=options)
+gesture_recognizer = GestureRecognizer.create_from_options(options)
 
 user_action = ""
 user_action_event = threading.Event()

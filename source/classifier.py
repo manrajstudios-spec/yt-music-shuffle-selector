@@ -11,7 +11,7 @@ class Classifier:
         self.w1 = Param(shape=(384,128),random=True)
         self.b1 = Param(shape=(1,128),random=False)
 
-        self.w2 = Param(shape=(20*128,64),random=True)
+        self.w2 = Param(shape=(10*128,64),random=True)
         self.b2 = Param(shape=(1,64),random=False)
 
         self.w3 = Param(shape=(64,2),random=True)
@@ -32,9 +32,10 @@ class Classifier:
 
         self.probs = None
 
-        self.song_data = torch.load("Data/song_data.pt",weights_only=False)
-
     def get_data(self):
+
+        song_data = torch.load("Data/song_data.pt",weights_only=False)
+
         try:
             with open("Data/dataset.json", "r") as f:
                 dataset = json.load(f)
@@ -42,28 +43,19 @@ class Classifier:
             print(e)
             dataset = []
 
-        for good, bad in zip(dataset[0], dataset[1]):
-            good_embeds = []
-            bad_embeds = []
+        for playlist,clf in zip(dataset["playlist"],dataset["clf"]):
+            self.targets.append(clf)
+            
+            cur = []
 
-            for g, b in zip(good["songs"], bad["songs"]):
+            for song in playlist:
                 try:
-                    g_id = self.song_data["names"].index(g)
-                except ValueError:
-                    print(g)
+                    song_id = song_data["names"].index(song)
+                    cur.append(song_data["embeddings"][song_id])
+                except:
+                    cur.append(song_data["embeddings"][12])
 
-                try:
-                    b_id = self.song_data["names"].index(b)
-                except ValueError:
-                    print(b)
-                good_embeds.append(self.song_data["embeddings"][g_id])
-                bad_embeds.append(self.song_data["embeddings"][b_id])
-
-            self.train_embeds.append(good_embeds)
-            self.train_embeds.append(bad_embeds)
-
-            self.targets.append(good["clf"])
-            self.targets.append(bad["clf"])
+            self.train_embeds.append(cur)
 
     @staticmethod
     def gelu(x):
@@ -183,12 +175,12 @@ class Classifier:
 
         torch.save(to_save,"Models/classfier_model.pt")
 
-    def predict(self, X):
+    def predict(self, X,song_data):
         song_embeds = []
 
         for x in X:
-            s_id = self.song_data["names"].index(x)
-            song_embeds.append(self.song_data["embeddings"][s_id])
+            s_id = song_data["names"].index(x)
+            song_embeds.append(song_data["embeddings"][s_id])
 
         X = torch.stack(song_embeds)
 
@@ -199,13 +191,14 @@ class Classifier:
         return prediction
 
     def return_good_shuffle(self,all_songs,max_tries=10000):
-        all_songs = all_songs.copy()
+        cur_playlist = all_songs.copy()
+
+        song_data = torch.load("Data/song_data.pt",weights_only=False)
 
         for i in range (max_tries):
-            random.shuffle(all_songs)
-            cur_playlist = all_songs
-            impact_songs = cur_playlist[:20]
-            prediction = self.predict(impact_songs)
+            random.shuffle(cur_playlist)
+            impact_songs = cur_playlist[:10]
+            prediction = self.predict(impact_songs,song_data)
 
             print(f"try: {i+1}; probs: {self.probs} ; prediction: {prediction}")
 
@@ -215,11 +208,11 @@ class Classifier:
             video_ids = []
 
             for song in cur_playlist:
-                s_id = self.song_data["names"].index(song)
+                s_id = song_data["names"].index(song)
 
-                video_ids.append(self.song_data["video_ids"][s_id])
+                video_ids.append(song_data["video_ids"][s_id])
 
-            return video_ids,all_songs
+            return cur_playlist,video_ids
 
 
 if __name__=="__main__":
@@ -239,5 +232,5 @@ if __name__=="__main__":
     except FileNotFoundError:
         playlist_classifier = Classifier()
         playlist_classifier.train()
-        playlist_classifier.save_model()
+        # playlist_classifier.save_model()
 
