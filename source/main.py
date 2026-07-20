@@ -104,8 +104,11 @@ def show_shuffle(shuffle):
 
     console.print(table)
 
-
 if __name__ == "__main__":
+
+    with open("Data/dataset.json",'r') as f:
+        dataset = []
+
     shuffle, video_ids = [], []
     threading.Thread(target=start_uvicorn_server,daemon=True).start()
 
@@ -145,10 +148,13 @@ if __name__ == "__main__":
             except Exception as error:
                 console.print(f"[bold red]Failed to open playlist:[/bold red] {error}")
             
-          
-
         elif choice == "regenerate":
             console.print("[yellow]Discarding current shuffle...[/yellow]")
+            dataset["playlist"].append(shuffle)
+            dataset["clf"].append(0)
+
+            with open("Data/dataset.json",'w') as file:
+                json.dump(dataset,file,indent=4)
             shuffle, video_ids = [], []
 
         elif choice == "quit":

@@ -173,7 +173,7 @@ class Classifier:
     def save_model(self):
         to_save = {"w1":self.w1.value,"w2":self.w2.value,"w3":self.w3.value,"b1":self.b1.value,"b2":self.b2.value,"b3":self.b3.value}
 
-        torch.save(to_save,"Models/classfier_model.pt")
+        torch.save(to_save,"Models/classifier_model.pt")
 
     def predict(self, X,song_data):
         song_embeds = []
@@ -219,7 +219,7 @@ if __name__=="__main__":
     try:
         playlist_classifier = Classifier()
 
-        model_config = torch.load("Models/classfier_model.pt",weights_only=True)
+        model_config = torch.load("Models/classifier_model.pt",weights_only=True)
 
         playlist_classifier.w1.value = model_config["w1"]
         playlist_classifier.w2.value = model_config["w2"]

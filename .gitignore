@@ -1,8 +1,3 @@
-source/Data/browser.json
-source/Data/dataset.json
-source/Data/song_data.pt
-source/Models/classfier_model.pt
-source/Models/gesture_recognizer.task
-source/Data/songs.json
-source/Data/last_playlist_id.txt
+source/Models/
+source/Data/
 .env
