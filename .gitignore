@@ -1,3 +1,4 @@
 source/Models/
 source/Data/
+source/auth/
 .env

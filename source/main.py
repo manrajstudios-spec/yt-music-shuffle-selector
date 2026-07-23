@@ -1,3 +1,4 @@
+import os
 import json
 import torch
 import threading
@@ -6,15 +7,23 @@ import uvicorn as uv
 from app import app
 from rich.panel import Panel
 from rich.table import Table
+
 from rich.prompt import Prompt
-from ytmusicapi import YTMusic
+from ytmusicapi import YTMusic,OAuthCredentials
 from rich.console import Console
 from classifier import Classifier
 from user_input import start_recording
 
 console = Console()
 
+with open("Data/auth_file.json",'r') as f:
+    auth = json.load(f)
+    CLIENT_ID = auth["ID"]
+    CLIENT_SECRET = auth["KEY"] 
+
+
 yt_music = YTMusic("Data/browser.json")
+
 source_playlist_id = "PLmVrfZmSPBK1kYEWdgbB9dlB1L7AB8hbB"
 
 
@@ -25,7 +34,7 @@ def get_classifier():
     try:
         playlist_classifier = Classifier()
 
-        model_config = torch.load("Models/classfier_model.pt",weights_only=True)
+        model_config = torch.load("Models/classifier_model.pt",weights_only=True)
 
         playlist_classifier.w1.value = model_config["w1"]
         playlist_classifier.w2.value = model_config["w2"]
@@ -107,7 +116,7 @@ def show_shuffle(shuffle):
 if __name__ == "__main__":
 
     with open("Data/dataset.json",'r') as f:
-        dataset = []
+        dataset = json.load(f)
 
     shuffle, video_ids = [], []
     threading.Thread(target=start_uvicorn_server,daemon=True).start()
@@ -131,7 +140,7 @@ if __name__ == "__main__":
 
         show_shuffle(shuffle)
 
-        choice = Prompt.ask("\n[bold]Choose an action[/bold]",choices=["play", "regenerate", "quit"],default="play")
+        choice = Prompt.ask("\n[bold]Choose an action[/bold]",choices=["play", "regenerate", "quit","skip"],default="play")
 
         if choice == "play":
             try:                
@@ -150,7 +159,7 @@ if __name__ == "__main__":
             
         elif choice == "regenerate":
             console.print("[yellow]Discarding current shuffle...[/yellow]")
-            dataset["playlist"].append(shuffle)
+            dataset["playlist"].append(shuffle[:10])
             dataset["clf"].append(0)
 
             with open("Data/dataset.json",'w') as file:
@@ -160,3 +169,7 @@ if __name__ == "__main__":
         elif choice == "quit":
             console.print("[bold cyan]Goodbye 🎵[/bold cyan]")
             break
+        elif choice == "skip":
+            console.print("[blue]skipping current shuffle...[/blue]")
+            shuffle, video_ids = [], []
+

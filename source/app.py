@@ -19,6 +19,5 @@ def root():
 @app.get("/action_done")
 def action_done():
     user_input.set_user_input_null()
-    user_input.user_action_event.clear()
     return {"message":"done"}
 

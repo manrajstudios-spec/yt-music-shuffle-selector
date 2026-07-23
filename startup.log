@@ -10,3 +10,18 @@ Traceback (most recent call last):
   File "/home/manraj_studios/Projects/yt-music-shuffle-selector/source/main.py", line 2, in <module>
     import torch
 ModuleNotFoundError: No module named 'torch'
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1784533760.037055    4132 hand_gesture_recognizer_graph.cc:250] Custom gesture classifier is not defined.
+I0000 00:00:1784533760.070495    4132 gl_context_egl.cc:85] Successfully initialized EGL. Major : 1 Minor: 5
+I0000 00:00:1784533760.079094    4150 gl_context.cc:385] GL version: 3.2 (OpenGL ES 3.2 Mesa 26.1.5-arch1.1), renderer: Mesa Intel(R) Graphics (ADL GT2)
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1784533760.090888    4140 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1784533760.102631    4134 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1784533760.103459    4142 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1784533760.103512    4142 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+╭──────────────────────────────────────────────╮
+│ YT Music Shuffle Selector                    │
+│ Generate a playlist based on your classifier │
+╰──────────────────────────────────────────────╯
+
+Press Enter to generate a shuffle: 

@@ -26,7 +26,7 @@ class Classifier:
         self.a2=None
         self.flat=None
 
-        self.epochs = 20
+        self.epochs = 30
         self.targets = []
         self.train_embeds = []
 
@@ -53,7 +53,7 @@ class Classifier:
                     song_id = song_data["names"].index(song)
                     cur.append(song_data["embeddings"][song_id])
                 except:
-                    cur.append(song_data["embeddings"][12])
+                    cur.append(song_data["embeddings"][5])
 
             self.train_embeds.append(cur)
 
