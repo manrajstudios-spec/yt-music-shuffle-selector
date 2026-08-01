@@ -2,15 +2,9 @@
 
 <div align="center">
 
-**An AI-powered music shuffle system that learns what makes a playlist sound good.**
+## An AI-powered music shuffle system that learns how to create better playlists.
 
-Instead of returning a completely random shuffle, T-Music Shuffle Selector generates multiple candidate playlists, evaluates them using a neural network, and only presents shuffles predicted to provide a better listening experience.
-
-![Python](https://img.shields.io/badge/Python-3.11+-blue?logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi)
-![NumPy](https://img.shields.io/badge/NumPy-Scientific_Computing-blue?logo=numpy)
-![JavaScript](https://img.shields.io/badge/JavaScript-Browser_Extension-yellow?logo=javascript)
-![License](https://img.shields.io/badge/License-MIT-green)
+T-Music Shuffle Selector replaces traditional random shuffle with an intelligent system that generates playlist orders, evaluates them using a neural network, and improves through user feedback.
 
 </div>
 
@@ -18,209 +12,251 @@ Instead of returning a completely random shuffle, T-Music Shuffle Selector gener
 
 ## ✨ Features
 
-* 🧠 AI-powered playlist quality prediction
-* 🎲 Intelligent shuffle generation
-* 🔄 Automatic shuffle regeneration
+* 🧠 AI-based shuffle quality prediction
+* 🎲 Intelligent playlist shuffle generation
+* 🔄 Automatic regeneration of bad shuffles
+* 🎵 Song embedding based playlist representation
+* 🤖 3-layer neural network classifier
 * 📈 Continuous learning from user feedback
-* 🎵 Local playlist support
-* ▶️ Automatic YouTube playlist playback
-* ⌨️ Global keyboard media controls
-* 🌐 Browser extension for YouTube control
-* ⚡ FastAPI backend
-* 🎯 Automatic dataset generation for new songs
+* 🎧 YouTube Music integration using `ytmusicapi`
+* ▶️ Automatic playlist creation and playback
+* ⌨️ Custom keyboard media controls
+* ⚡ FastAPI local backend
+* 🌐 Browser extension with JavaScript playback control
+* ➕ Automatic new song detection and retraining
 
 ---
 
-# 📸 Demo
+# 📌 Motivation
 
-> **Coming Soon**
+Traditional shuffle algorithms treat every song order as equally valid.
 
-| Shuffle Generation | Playback | Dataset Builder |
-| ------------------ | -------- | --------------- |
-| *(GIF)*            | *(GIF)*  | *(GIF)*         |
+But a good playlist is not just a random collection of songs. The transition between songs, placement, and overall flow affects the listening experience.
+
+T-Music Shuffle Selector attempts to learn what makes a playlist order feel better by using machine learning and continuous user feedback.
 
 ---
 
-# 🏗️ Architecture
+# 🏗️ System Architecture
 
 ```text
-                  Local Playlist
-                        │
-                        ▼
-               Generate Random Shuffle
-                        │
-                        ▼
-               Generate Song Embeddings
-                        │
-                        ▼
+                    Local Playlist
+                          |
+                          ▼
+              Song Metadata Collection
+                          |
+                          ▼
+                    ytmusicapi
+                          |
+                          ▼
+             YouTube Music Track Mapping
+                          |
+                          ▼
+              Generate Candidate Shuffle
+                          |
+                          ▼
+              Generate Song Embeddings
+                          |
+                          ▼
               3-Layer Neural Network
-                        │
-          ┌─────────────┴─────────────┐
-          │                           │
-      Prediction = 0             Prediction = 1
-      (Bad Shuffle)             (Good Shuffle)
-          │                           │
-          ▼                           ▼
-  Generate New Shuffle         Show To User
-                                      │
+                          |
+              ┌───────────┴───────────┐
+              ▼                       ▼
+          Prediction 0            Prediction 1
+          Bad Shuffle             Good Shuffle
+              |                       |
+              ▼                       ▼
+       Generate Again          Show Playlist
+                                      |
                                       ▼
-                            User Feedback (👍 / 👎)
-                                      │
-                                      ▼
-                              Update Dataset
-                                      │
-                                      ▼
-                              Retrain Model
+                              User Feedback
+                                      |
+                    ┌─────────────────┴─────────────────┐
+                    ▼                                   ▼
+                Positive                              Negative
+                Label = 1                             Label = 0
+                    |
+                    ▼
+              Retrain Model
 ```
 
 ---
 
 # 🚀 How It Works
 
-## Step 1 — Load Playlist
+## 1. Playlist Loading
 
-The application reads every song from a locally stored playlist.
+Songs are stored locally with their metadata.
 
-Each song stores metadata including its corresponding YouTube video ID.
+The system connects song information with YouTube Music using `ytmusicapi`.
 
----
+Stored information includes:
 
-## Step 2 — Generate Candidate Shuffle
-
-A random ordering of the playlist is created.
-
-Unlike a traditional music player, this shuffle is **not immediately shown** to the user.
-
----
-
-## Step 3 — Embed the Playlist
-
-Every song is converted into an embedding representation.
-
-The embeddings are combined to represent the entire playlist before being passed into the neural network.
+* Song name
+* Artist
+* Playlist information
+* YouTube Music video ID
 
 ---
 
-## Step 4 — Evaluate the Shuffle
+## 2. Shuffle Generation
 
-A custom **3-layer neural network** predicts whether the generated shuffle is likely to sound good.
+The system creates a random candidate shuffle from the playlist.
+
+Unlike normal shuffle algorithms, this shuffle is evaluated before being shown to the user.
+
+---
+
+## 3. Song Embeddings
+
+Each song is converted into an embedding representation.
+
+The complete playlist order is transformed into numerical data that can be processed by the neural network.
+
+---
+
+## 4. Neural Network Evaluation
+
+A 3-layer neural network predicts the quality of the generated shuffle.
 
 Output:
 
 ```
-1 → Good Playlist
-0 → Bad Playlist
+1 → Good shuffle
+0 → Bad shuffle
 ```
 
-If the prediction is **0**, the shuffle is discarded and another candidate is generated.
+If the model predicts `0`, the shuffle is discarded and regenerated.
 
-This continues until the model predicts a high-quality shuffle.
-
----
-
-## Step 5 — Play the Playlist
-
-Once accepted:
-
-* Video IDs are collected
-* The YouTube playlist is opened
-* Playback starts
+This continues until a suitable shuffle is found.
 
 ---
 
-# 🎮 Playback System
+# 🎧 YouTube Music Integration
 
-The playback pipeline consists of three independent components.
+The project uses `ytmusicapi` to communicate with YouTube Music.
+
+It handles:
+
+* Searching songs
+* Fetching track information
+* Mapping songs to YouTube Music IDs
+* Creating playlists
+* Connecting local playlists with online playback
+
+After a shuffle is accepted:
+
+1. Songs are converted into YouTube Music tracks.
+2. A playlist is generated.
+3. Playback begins.
+
+---
+
+# 🎮 Playback Control System
+
+The project uses a FastAPI backend and a browser extension to control playback.
+
+Architecture:
 
 ```text
-Keyboard
-    │
-    ▼
-FastAPI Backend
-    │
-    ▼
-Browser Extension
-    │
-    ▼
-Injected JavaScript
-    │
-    ▼
-YouTube Player
+Keyboard Input
+       |
+       ▼
+ FastAPI Backend
+       |
+       ▼
+ Browser Extension
+       |
+       ▼
+ JavaScript Injection
+       |
+       ▼
+ YouTube Music Player
 ```
 
-The browser extension injects JavaScript into YouTube pages.
-
-Whenever FastAPI receives a media command, it forwards the request to the extension, which directly controls the YouTube player.
+The browser extension injects JavaScript into the YouTube Music page and controls the player directly.
 
 ---
 
-# ⌨️ Keyboard Controls
+# ⌨️ Media Controls
 
-| Input        | Action          |
-| ------------ | --------------- |
-| Single Press | ⏯ Play / Pause  |
-| Double Press | ⏭ Next Song     |
-| Triple Press | ⏮ Previous Song |
+A dedicated keyboard key is used for playback control.
+
+| Input        | Action        |
+| ------------ | ------------- |
+| Single Press | Play / Pause  |
+| Double Press | Next Song     |
+| Triple Press | Previous Song |
 
 ---
 
-# 📚 Learning From Feedback
+# 📚 Learning System
 
-Every accepted playlist becomes training data.
+The model improves using user feedback.
 
-If the user enjoys the playlist:
-
-```
-Label = 1
-```
-
-If the playlist feels poor:
+If a generated playlist is good:
 
 ```
-Label = 0
+Playlist → Label 1
 ```
 
-The dataset grows over time, allowing the classifier to improve with real user preferences.
+If the generated playlist is bad:
+
+```
+Playlist → Label 0
+```
+
+These examples are added to the dataset and used for future training.
 
 ---
 
 # ➕ Adding New Songs
 
-Whenever songs are added to the local playlist, simply run
+When new songs are added to the playlist, run:
 
 ```bash
 python add_new_songs.py
 ```
 
-The script automatically:
+The script:
 
-* detects new songs
-* asks whether they belong near the **Top**, **Middle**, or **Bottom** of a playlist
-* updates the dataset
-* generates additional training playlists
-* retrains the classifier
+* Detects songs not present in the stored dataset
+* Asks the user where the song belongs:
 
-If multiple songs are added simultaneously, they are grouped together before playlist generation.
+  * Top
+  * Middle
+  * Bottom
+* Generates new training examples
+* Updates the dataset
+* Retrains the classifier
 
 ---
 
 # 📊 Dataset Generation
 
-The project contains a template dataset consisting of **50 playlists**.
+The project contains a template dataset containing **50 playlists**.
 
-Each playlist is labelled as:
+Each playlist has a label:
 
 ```
-1 = Good Playlist
-
-0 = Bad Playlist
+1 → Correct playlist ordering
+0 → Incorrect playlist ordering
 ```
 
-Negative playlists intentionally place songs in poor positions.
+For negative examples:
 
-Positive playlists arrange songs according to their preferred ranking.
+* Songs are randomly placed into incorrect positions.
 
-This creates balanced supervised training data.
+For positive examples:
+
+* Songs are placed according to their preferred position.
+
+When multiple songs are added:
+
+1. Songs are grouped in batches.
+2. Candidate playlists are generated.
+3. Labels are assigned.
+4. The model is retrained.
 
 ---
 
@@ -239,7 +275,7 @@ T-Music-Shuffle-Selector/
 │   └── background.js
 │
 ├── model/
-│   ├── network.py
+│   ├── neural_network.py
 │   ├── train.py
 │   └── weights/
 │
@@ -247,7 +283,9 @@ T-Music-Shuffle-Selector/
 │   ├── playlists.json
 │   └── labels.json
 │
-├── embeddings/
+├── music/
+│   ├── song metadata
+│   └── YouTube Music IDs
 │
 ├── add_new_songs.py
 ├── shuffle.py
@@ -258,42 +296,45 @@ T-Music-Shuffle-Selector/
 
 # 🛠️ Tech Stack
 
-| Category           | Technology               |
-| ------------------ | ------------------------ |
-| Language           | Python                   |
-| Backend            | FastAPI                  |
-| Machine Learning   | NumPy                    |
-| Browser Automation | JavaScript               |
-| Extension          | Chrome/Firefox Extension |
-| Playback           | YouTube                  |
-| Dataset            | Local JSON / NumPy       |
-| Music Source       | Local Playlist           |
+| Component            | Technology         |
+| -------------------- | ------------------ |
+| Language             | Python             |
+| Backend              | FastAPI            |
+| Machine Learning     | Neural Network     |
+| Numerical Processing | NumPy              |
+| Music API            | ytmusicapi         |
+| Browser Extension    | JavaScript         |
+| Playback             | YouTube Music      |
+| Storage              | JSON / Local Files |
 
 ---
 
-# 🔮 Future Work
+# 🔮 Future Improvements
 
-* Transformer-based playlist ranking
-* Reinforcement learning from user feedback
-* Personalized embeddings
-* Genre-aware shuffling
-* Playlist similarity search
-* Web dashboard
-* Explainable AI predictions
-* Playlist quality score instead of binary classification
-
----
-
-# 💡 Motivation
-
-Traditional shuffle algorithms assume every ordering is equally good.
-
-In reality, the transition between songs affects the listening experience.
-
-This project explores whether a machine learning model can learn those transitions and generate playlist orders that feel more natural than a purely random shuffle.
+* Replace binary classification with playlist ranking
+* Use reinforcement learning from listening behaviour
+* Add multiple user profiles
+* Improve song transition modelling
+* Add playlist quality scoring
+* Create a web dashboard
+* Visualize why a shuffle was accepted or rejected
 
 ---
 
-# 📄 License
+# 📜 License
 
-This project is licensed under the MIT License.
+MIT License
+
+---
+
+# ⭐ Project Goal
+
+T-Music Shuffle Selector explores whether a machine learning model can learn the difference between a random playlist and a playlist that feels naturally enjoyable.
+
+Instead of asking:
+
+> "Can we shuffle songs randomly?"
+
+This project asks:
+
+> "Can a model learn how humans prefer songs to flow?"
