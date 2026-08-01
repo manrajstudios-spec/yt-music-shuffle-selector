@@ -127,8 +127,10 @@ if __name__ == "__main__":
 
     while True:
         if not shuffle:
-            Prompt.ask("\n[bold green]Press Enter to generate a shuffle[/bold green]")
+            user_ans = Prompt.ask("\n[bold green]Press Enter to generate a shuffle[/bold green]")
 
+            if user_ans == "q" : break
+            
             try:
                 with console.status("[bold cyan]Generating shuffle...[/bold cyan]",spinner="moon"):
                     shuffle, video_ids = get_shuffle()
@@ -150,7 +152,8 @@ if __name__ == "__main__":
                     open_shuffle(video_ids)
 
                 console.print("[bold green]Playlist opened successfully.[/bold green]")
-
+                dataset["playlist"].append(shuffle[:10])
+                dataset["clf"].append(1)
 
                 shuffle, video_ids = [], []
 

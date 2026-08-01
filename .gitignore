@@ -2,3 +2,12 @@ source/Models/
 source/Data/
 source/auth/
 .env
+source/Data/auth_file.json
+source/Data/browser.json
+source/Data/dataset.json
+source/Data/last_playlist_id.txt
+source/Data/oauth.json
+source/Data/song.json
+source/Data/songs.json
+source/Data/template_dataset.json
+source/Data/song_data.pt

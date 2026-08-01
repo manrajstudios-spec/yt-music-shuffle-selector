@@ -116,7 +116,7 @@ for song_split,template_split in zip(new_song_splits,template_divided):
                 else:
                     position = random.choice(top + middle)
                     
-                playlist[position] = song 
+                playlist[position] = song["name"]
         else:
             for song in song_split:
                 position = 0
@@ -127,7 +127,7 @@ for song_split,template_split in zip(new_song_splits,template_divided):
                 else:
                     position = random.choice(bottom)
                 
-                playlist[position] = song
+                playlist[position] = song["name"]
         
         extended["playlist"].append(playlist)
         extended["clf"].append(clf)
