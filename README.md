@@ -58,7 +58,7 @@ T-Music Shuffle Selector attempts to learn what makes a playlist order feel bett
               Generate Song Embeddings
                           |
                           ▼
-              3-Layer Neural Network
+              4-Layer Neural Network
                           |
               ┌───────────┴───────────┐
               ▼                       ▼
@@ -117,7 +117,7 @@ The complete playlist order is transformed into numerical data that can be proce
 
 ## 4. Neural Network Evaluation
 
-A 3-layer neural network predicts the quality of the generated shuffle.
+A 4-layer neural network predicts the quality of the generated shuffle.
 
 Output:
 
